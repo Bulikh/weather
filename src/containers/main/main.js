@@ -33,6 +33,7 @@ const MainContainer = styled.main`
     left: 0;
     top: 0;
     justify-content: center;
+    background: #000;
   }
 `;
 const Section = styled.section`

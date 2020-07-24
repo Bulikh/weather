@@ -25,9 +25,7 @@ export const initWeather = (city, lat, long) => {
     dispatch(setLoader());
     axios
       .get(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${long}&
-        exclude=hourly,daily&appid=${process.env.REACT_APP_WEATHER_KEY}`
-        // `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.REACT_APP_WEATHER_KEY}`
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${long}&appid=${process.env.REACT_APP_WEATHER_KEY}`
       )
       .then(res => {
         dispatch(addWeather(res.data));

@@ -6,7 +6,7 @@ import Background from "./containers/background/background";
 function App() {
   const dispatch = useDispatch();
   const { weather, city, lat, long } = useSelector(state => state);
-  console.log(weather, city, lat, long);
+  // console.log(weather, city, lat, long);
   useEffect(() => {
     dispatch(initLatLong());
   }, [dispatch]);
