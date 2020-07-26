@@ -3,6 +3,7 @@ import {
   SET_LOADER,
   ADD_WEATHER,
   SET_CITY,
+  SET_COORDS,
 } from "../actions/actionCreators";
 const initialState = {
   weather: null,
@@ -29,9 +30,15 @@ const weatherReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        weather: action.payload,
+        weather: action.payload.weather,
+        city: action.payload.city,
       };
     case SET_CITY:
+      return {
+        ...state,
+        city: action.payload.city,
+      };
+    case SET_COORDS:
       return {
         ...state,
         city: action.payload.city,

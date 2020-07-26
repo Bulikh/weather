@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import bgImage from "../../assets/weather.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,6 +10,7 @@ import {
   faCloudMeatball,
 } from "@fortawesome/free-solid-svg-icons";
 import { kelvinToCelsius } from "../../utils/index";
+import { initWeather } from "../../store/actions/actions";
 const MainContainer = styled.main`
   max-width: 1024px;
   width: 100%;
@@ -45,6 +48,7 @@ const Section = styled.section`
   margin: 0;
   box-sizing: border-box;
   padding: 0 15px;
+  margin-top: ${props => (props.top ? props.top + "px" : "0px")};
   div {
     display: flex;
     align-items: center;
@@ -105,12 +109,22 @@ const Div = styled.div`
   }
   @media (max-width: 800px) {
     width: 100%;
+    margin: 20px 0;
     &:first-child {
       align-items: center;
       padding: 0;
     }
     section {
       margin: 30px 0;
+    }
+    &:nth-child(1) {
+      order: 2;
+    }
+    &:nth-child(2) {
+      order: 1;
+    }
+    &:nth-child(3) {
+      order: 3;
     }
   }
 `;
@@ -148,7 +162,48 @@ const Article = styled.article`
     font-size: 14px;
   }
 `;
+const Input = styled.input`
+  border: none;
+  background: transparent;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  margin-top: 5px;
+  padding: 10px;
+  &::placeholder {
+    color: #000;
+    font-weight: bold;
+  }
+`;
+const Button = styled.button`
+  padding: 10px 5px;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  color: #000;
+`;
 const Main = ({ forecast, city }) => {
+  const [inputValue, setInputValue] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const dispatch = useDispatch();
+  const onHandleSubmit = e => {
+    e.preventDefault();
+
+    axios
+      .get(
+        `https://api.opencagedata.com/geocode/v1/json?q=${inputValue}&key=657b88e76a6f4e0484bddac6a5eac037`
+      )
+      .then(res =>
+        dispatch(
+          initWeather(
+            inputValue.charAt(0).toUpperCase() + inputValue.slice(1),
+            res.data.results[0].geometry.lat,
+            res.data.results[0].geometry.lng
+          )
+        )
+      )
+      // console.log(res.data.results[0].geometry))
+      .catch(err => console.log(err));
+  };
   return (
     <MainContainer>
       <Title>Weather Forecast Today</Title>
@@ -169,6 +224,21 @@ const Main = ({ forecast, city }) => {
           <h2>
             {kelvinToCelsius(forecast.current.temp)} {"\u2103"}
           </h2>
+        </Div>
+        <Div>
+          <Button onClick={() => setShowForm(!showForm)}>
+            Choose another city
+          </Button>
+          {showForm && (
+            <form onSubmit={onHandleSubmit}>
+              <Input
+                onChange={e => setInputValue(e.target.value)}
+                type="text"
+                value={inputValue}
+                placeholder="Enter city name"
+              />
+            </form>
+          )}
         </Div>
         <Div>
           <section>
@@ -195,7 +265,7 @@ const Main = ({ forecast, city }) => {
         </Div>
       </Section>
       <Title>Weather forecast next days</Title>
-      <Section height="unset">
+      <Section height="unset" top="45">
         {forecast.daily.map(item => (
           <Article key={item.dt}>
             <h3>{new Date(item.dt * 1000).toUTCString().slice(0, 7)}</h3>
@@ -209,9 +279,6 @@ const Main = ({ forecast, city }) => {
               alt={item.weather[0].main + " weather"}
             />
             <h2>{kelvinToCelsius(item.temp.day).toFixed(0) + "\u2103"}</h2>
-            {/* <h2>
-              Evening: {kelvinToCelsius(item.temp.eve).toFixed(0) + "\u2103"}
-            </h2> */}
           </Article>
         ))}
       </Section>
